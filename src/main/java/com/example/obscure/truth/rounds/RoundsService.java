@@ -101,7 +101,14 @@ public class RoundsService {
 			return new GameGetDTO(game); // stop cheating!
 		}
 		
-		currentRound.setFirst(player);
+		final boolean isFirst;
+		
+		if (currentRound.getFirst() == null) {
+			currentRound.setFirst(player);
+			isFirst = true;
+		} else {
+			isFirst = false;
+		}
 		
 		int numberDeductions = (currentRound.getDeductions().size() / 3) + 1;
 		
@@ -124,7 +131,6 @@ public class RoundsService {
 
 			// collect scores
 			game.getPlayers().forEach(gamePlayer -> {
-				boolean isFirst = Objects.equals(gamePlayer, currentRound.getFirst());
 				int score = isFirst ? 20 : 10;
 				log.info("{} deduced and was {} scoring {} an answer", gamePlayer.getName(), isFirst ? "first" : "not first", score);
 				if (!gamePlayer.equals(suspect)) {
