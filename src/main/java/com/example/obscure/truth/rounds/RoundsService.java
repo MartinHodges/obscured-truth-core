@@ -131,7 +131,7 @@ public class RoundsService {
 					Set<DeductionEntity> playerDeductions = currentRound.getDeductions().stream()
 						.filter(deduction -> Objects.equals(gamePlayer.getId(), deduction.getPlayer().getId()))
 						.collect(Collectors.toSet());
-					for (int s = 0; s < 3; s++) {
+					for (int s = 1; s <= 3; s++) {
 						if (checkDeduction(currentRound.getFacts(), playerDeductions, s)) {
 							log.info("{} gets {} for {}", gamePlayer.getName(), score, s);
 							gamePlayer.setScore(player.getScore() + score);
