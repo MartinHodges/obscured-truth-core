@@ -13,6 +13,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -45,11 +47,7 @@ public class GameEntity {
     	player.setGame(this);
     }
 	
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<RoundEntity> rounds = new HashSet<>();
-    
-    public void addRound(RoundEntity round) {
-    	rounds.add(round);
-    	round.setGame(this);
-    }
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "ROUND", nullable = true)
+    private RoundEntity round = null;
 }

@@ -1,7 +1,7 @@
 package com.example.obscure.truth.rounds;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -38,22 +38,16 @@ public class RoundsService {
 		
 		GameEntity game = gamesService.getEntityByUUID(gamesId);
 
-		Optional<RoundEntity> currentRound = game.getRounds().stream()
-				.filter(round -> round.isActive())
-				.findFirst();
-
-		if (currentRound.isPresent()) {
-			currentRound.get().setActive(false);
-		}
-		
 		PlayerEntity suspect = playerService.getPlayerEntityByUuid(suspectId); 
 		suspect.setAsSuspect(suspect.getAsSuspect() + 1);
 		playerService.updateEntity(suspect);
 		
 		RoundEntity round = new RoundEntity();
-		round.setActive(true);
 		round.setSuspect(suspect);
-		game.addRound(round);
+		round.setStart(null);
+		round.setGame(game);
+
+		game.setRound(round);
 		game.setState(GameState.SUSPECT_ASSIGNED);
 
 		game = gamesService.updateEntity(game);
@@ -65,19 +59,21 @@ public class RoundsService {
 	public GameGetDTO saveFacts(String gamesId, Set<FactPostDTO> factsDto) {
 		GameEntity game = gamesService.getEntityByUUID(gamesId);
 
-		RoundEntity currentRound = game.getRounds().stream()
-				.filter(round -> round.isActive())
-				.findFirst()
-				.orElseThrow(() -> new NotFoundException("Round not found"));
+		RoundEntity round = game.getRound();
+		if (round == null) {
+			throw new NotFoundException("Round not found");
+		}
 		
 		factsDto.forEach(factDto -> {
 			FactEntity factEntity = new FactEntity();
 			factEntity.setSequence(factDto.getSequence());
 			factEntity.setDescription(factDto.getFact());
 			factEntity.setTruth(factDto.isTruth());
-			currentRound.addFact(factEntity);
+			round.addFact(factEntity);
 		});
 		
+		round.setStart(LocalDateTime.now());
+
 		game.setState(GameState.FACTS_PROVIDED);
 		
 		game = gamesService.updateEntity(game);
@@ -92,10 +88,10 @@ public class RoundsService {
 
 		PlayerEntity player = playerService.getPlayerEntityByUuid(playerId);
 		
-		RoundEntity currentRound = game.getRounds().stream()
-				.filter(round -> round.isActive())
-				.findFirst()
-				.orElseThrow(() -> new NotFoundException("Round not found"));
+		RoundEntity currentRound = game.getRound();
+		if (currentRound == null) {
+			throw new NotFoundException("Round not found");
+		}
 
 		if (Objects.equals(player, currentRound.getSuspect())) {
 			return new GameGetDTO(game); // stop cheating!
@@ -193,10 +189,10 @@ public class RoundsService {
 			throw new BadStateException("Not all deductions provided");
 		}
 		
-		RoundEntity currentRound = game.getRounds().stream()
-				.filter(round -> round.isActive())
-				.findFirst()
-				.orElseThrow(() -> new NotFoundException("Round not found"));
+		RoundEntity currentRound = game.getRound();
+		if (currentRound == null) {
+				throw new NotFoundException("Round not found");
+		}
 
 		game.setState(GameState.READY);
 		

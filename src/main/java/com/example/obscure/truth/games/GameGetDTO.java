@@ -47,10 +47,6 @@ public class GameGetDTO {
 				.map(player -> new PlayerGetDTO(game, player))
 				.collect(Collectors.toSet());
 		
-		round = game.getRounds().stream()
-				.filter(round -> round.isActive())
-				.map(round -> new RoundGetDTO(round))
-				.findFirst()
-				.orElse(null);
+		round = new RoundGetDTO(game.getRound());
 	}
 }

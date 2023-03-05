@@ -1,5 +1,6 @@
 package com.example.obscure.truth.rounds;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -51,8 +52,8 @@ public class RoundEntity {
     	deduction.setRound(this);
     }
 
-    @Column(name = "ACTIVE", nullable = false)
-    private boolean active = false;
+    @Column(name = "START", nullable = true)
+    private LocalDateTime start = null;
 
     public void addFact(FactEntity fact) {
     	facts.add(fact);
