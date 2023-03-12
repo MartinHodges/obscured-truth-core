@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: obscured-truth-core
+  namespace: obscured-truth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: obscured-truth-core
+  template:
+    metadata:
+      labels:
+        app: obscured-truth-core
+    spec:
+      containers:
+        - name: obscured-truth-core
+          image: martinhodges/obscured-truth-core:latest
+          ports:
+            - containerPort: 9092
+# this is not used but left here for reference
+          env:
+            - name: MONGO_URL
+              value: mongodb://mongo:27017/dev
+          imagePullPolicy: Always
+---
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: obscured-truth-core-lb
+  labels:
+    app: obscured-truth-core-lb
+spec:
+  type: NodePort
+  ports:
+  - port: 9092
+    targetPort: 9092
+    protocol: TCP
+    nodePort: 30092
+  selector:
+    app: obscured-truth-core
