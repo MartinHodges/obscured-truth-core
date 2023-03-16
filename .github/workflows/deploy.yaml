@@ -27,7 +27,7 @@ jobs:
 
       - name: Update K8S Config
         run: |
-          ./update_version.sh core/2-deployment.yaml ${{github.event.inputs.dockerTag}}
+          ./update_version.sh core/1-deployment.yaml ${{github.event.inputs.dockerTag}}
       - name: Push to deployment repo
         uses: cpina/github-action-push-to-another-repository@main
         env:
