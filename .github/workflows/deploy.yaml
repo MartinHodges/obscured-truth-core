@@ -25,9 +25,9 @@ jobs:
           ref: main
           token: ${{secrets.my_pat}}
 
-      - name: Update K8S Config
+      - name: Update K8S Config to ${{github.event.inputs.dockerTag}}
         run: |
-          echo "Update version to $${{github.event.inputs.dockerTag}}"
+          cat ./update_version.sh
           ./update_version.sh core/1-deployment.yaml ${{github.event.inputs.dockerTag}}
           cat core/1-deployment.yaml
       - name: Push to deployment repo
