@@ -51,6 +51,7 @@ jobs:
 
       - name: Update
         run: |
+           mkdir -p core
            cp /tmp/k8s/* core
 
       - name: Push to deployment repo
