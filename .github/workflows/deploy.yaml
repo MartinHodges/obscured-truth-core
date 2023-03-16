@@ -1,0 +1,41 @@
+name: 'Deploy'
+run-name: 'Deploy Obscured Truth Core (build version: ${{github.event.inputs.dockerTag}})'
+
+# Controls when the action will run.
+on:
+  # # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      dockerTag:
+        required: true
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains multiple jobs
+  deploy_ui:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+        with:
+          repository: MartinHodges/obscured-truth-k8s
+          ref: main
+          token: ${{secrets.my_pat}}
+
+      - name: Update K8S Config
+        run: |
+          ./update_version.sh core/2-deployment.yaml ${{github.event.inputs.dockerTag}}
+      - name: Push to deployment repo
+        uses: cpina/github-action-push-to-another-repository@main
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.my_pat }}
+        with:
+          source-directory: '.'
+          destination-github-username: 'MartinHodges'
+          destination-repository-name: 'obscured-truth-k8s'
+          user-email: martin.hodges@requillion-solutions.com
+          target-branch: main
+
