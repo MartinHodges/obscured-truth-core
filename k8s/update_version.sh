@@ -1,3 +1,3 @@
 #!/bin/sh
 
-sed -i "s/image: martinhodges\/obscured-truth-$3:.*/image: martinhodges\/obscured-truth-$3:$2/g" $1 
+sed -i "s/image: martinhodges\/obscured-truth-core:.*/image: martinhodges\/obscured-truth-core:$2/g" $1 
