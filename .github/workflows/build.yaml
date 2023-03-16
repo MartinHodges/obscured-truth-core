@@ -1,0 +1,70 @@
+name: 'Build'
+run-name: 'Build Obscured Truth Core (build version: ${{github.run_number}})'
+
+# Controls when the action will run.
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [main]
+  # # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains multiple jobs
+  build_core:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+#      - name: Build and push
+#        uses: docker/build-push-action@v4
+#        with:
+#          context: .
+##          file: ./Dockerfile
+#          push: true
+#          tags: ${{ secrets.DOCKERHUB_USERNAME }}/obscured-truth-ui:${{github.run_number}}, ${{ secrets.DOCKERHUB_USERNAME }}/obscured-truth-ui:latest
+
+      - name: Copy k8s config
+        run: |
+          mkdir /tmp/k8s
+          cp k8s/* /tmp/k8s
+
+      - name: Fetch k8s repo
+        uses: actions/checkout@v3
+        with:
+          repository: MartinHodges/obscured-truth-k8s
+          ref: main
+          token: ${{secrets.my_pat}}
+
+      - name: Update
+        run: |
+           cp /tmp/k8s/* core
+
+      - name: Push to deployment repo
+        uses: cpina/github-action-push-to-another-repository@main
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.my_pat }}
+        with:
+          source-directory: '.'
+          destination-github-username: 'MartinHodges'
+          destination-repository-name: 'obscured-truth-k8s'
+          user-email: martin.hodges@requillion-solutions.com
+          target-branch: main
+
+        
+
+
+
